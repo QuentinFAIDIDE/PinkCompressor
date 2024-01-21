@@ -15,11 +15,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "include/GainComputer.h"
+#include "GainComputer.h"
 #include <algorithm>
-#include <limits>
 #include <cmath>
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <juce_audio_basics/juce_audio_basics.h>
+#include <limits>
 
 GainComputer::GainComputer()
 {
@@ -37,24 +37,25 @@ void GainComputer::setThreshold(float newTreshold)
 
 void GainComputer::setRatio(float newRatio)
 {
-    if (ratio != newRatio)
+    if (std::abs(ratio - newRatio) > std::numeric_limits<float>::epsilon())
     {
         ratio = newRatio;
-        if (ratio > 23.9f) ratio = -std::numeric_limits<float>::infinity();
+        if (ratio > 23.9f)
+            ratio = -std::numeric_limits<float>::infinity();
         slope = 1.0f / newRatio - 1.0f;
     }
 }
 
 void GainComputer::setKnee(float newKnee)
 {
-    if (newKnee != knee)
+    if (std::abs(newKnee - knee) > std::numeric_limits<float>::epsilon())
     {
         knee = newKnee;
         kneeHalf = newKnee / 2.0f;
     }
 }
 
-float GainComputer::applyCompression(float& input)
+float GainComputer::applyCompression(float &input)
 {
     const float overshoot = input - threshold;
 
@@ -63,16 +64,15 @@ float GainComputer::applyCompression(float& input)
     if (overshoot > -kneeHalf && overshoot <= kneeHalf)
         return 0.5f * slope * ((overshoot + kneeHalf) * (overshoot + kneeHalf)) / knee;
 
-
     return slope * overshoot;
 }
 
-void GainComputer::applyCompressionToBuffer(float* src, int numSamples)
+void GainComputer::applyCompressionToBuffer(float *src, int numSamples)
 {
     for (int i = 0; i < numSamples; ++i)
     {
-        const float level = std::max(abs(src[i]), 1e-6f);
-        float levelInDecibels = Decibels::gainToDecibels(level);
+        const float level = std::max(std::abs(src[i]), 1e-6f);
+        float levelInDecibels = juce::Decibels::gainToDecibels(level);
         src[i] = applyCompression(levelInDecibels);
     }
 }

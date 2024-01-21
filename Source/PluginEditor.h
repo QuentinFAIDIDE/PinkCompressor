@@ -10,40 +10,39 @@
 
 #pragma once
 
-#include <JuceHeader.h>
-
-
-#include "gui/include/LabeledSlider.h"
-#include "gui/include/Meter.h"
-#include "gui/include/MeterBackground.h"
-#include "gui/include/SMPLCompLookAndFeel.h"
 #include "PluginProcessor.h"
+#include "gui/LabeledSlider.h"
+#include "gui/Meter.h"
+#include "gui/MeterBackground.h"
+#include "gui/SMPLCompLookAndFeel.h"
+#include <juce_gui_extra/juce_gui_extra.h>
 
 //==============================================================================
 /**
-*/
-class SmplcompAudioProcessorEditor : public AudioProcessorEditor, Timer
+ */
+class SmplcompAudioProcessorEditor : public juce::AudioProcessorEditor, juce::Timer
 {
-public:
-    SmplcompAudioProcessorEditor(SmplcompAudioProcessor&, AudioProcessorValueTreeState&);
+  public:
+    SmplcompAudioProcessorEditor(SmplcompAudioProcessor &, juce::AudioProcessorValueTreeState &);
     ~SmplcompAudioProcessorEditor();
 
     //==============================================================================
-    void paint(Graphics&) override;
+    void paint(juce::Graphics &) override;
     void resized() override;
     void timerCallback() override;
     void initWidgets();
-private:
+
+  private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
-    SmplcompAudioProcessor& processor;
-    AudioProcessorValueTreeState& valueTreeState;
+    SmplcompAudioProcessor &processor;
+    juce::AudioProcessorValueTreeState &valueTreeState;
 
     SMPLCompLookAndFeel LAF;
 
-    Colour backgroundApp;
+    juce::Colour backgroundApp;
 
-    //Widgets
+    // Widgets
     MeterBackground meterbg;
     Meter meter;
     LabeledSlider inGainLSlider;

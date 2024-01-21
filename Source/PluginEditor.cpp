@@ -8,13 +8,14 @@
   ==============================================================================
 */
 
-#include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "PluginProcessor.h"
 
 //==============================================================================
-SmplcompAudioProcessorEditor::SmplcompAudioProcessorEditor(SmplcompAudioProcessor& p, AudioProcessorValueTreeState& vts)
-    : AudioProcessorEditor(&p), processor(p), valueTreeState(vts), backgroundApp(Colour(Constants::Colors::bg_App)),
-      inGainLSlider(this), makeupGainLSlider(this),
+SmplcompAudioProcessorEditor::SmplcompAudioProcessorEditor(SmplcompAudioProcessor &p,
+                                                           juce::AudioProcessorValueTreeState &vts)
+    : juce::AudioProcessorEditor(&p), processor(p), valueTreeState(vts),
+      backgroundApp(juce::Colour(Constants::Colors::bg_App)), inGainLSlider(this), makeupGainLSlider(this),
       threshLSlider(this), ratioLSlider(this), kneeLSlider(this), attackLSlider(this), releaseLSlider(this),
       mixLSlider(this)
 {
@@ -30,7 +31,7 @@ SmplcompAudioProcessorEditor::~SmplcompAudioProcessorEditor()
 }
 
 //==============================================================================
-void SmplcompAudioProcessorEditor::paint(Graphics& g)
+void SmplcompAudioProcessorEditor::paint(juce::Graphics &g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
     g.fillAll(backgroundApp);
@@ -47,43 +48,41 @@ void SmplcompAudioProcessorEditor::resized()
     auto rBtnArea = area.removeFromRight(btnAreaWidth).reduced(Constants::Margins::small);
     auto botBtnArea = area.removeFromBottom(btnBotHeight).reduced(Constants::Margins::medium);
 
-    const FlexItem::Margin knobMargin = FlexItem::Margin(Constants::Margins::small);
-    const FlexItem::Margin knobMarginSmall = FlexItem::Margin(Constants::Margins::medium);
+    const juce::FlexItem::Margin knobMargin = juce::FlexItem::Margin(Constants::Margins::small);
+    const juce::FlexItem::Margin knobMarginSmall = juce::FlexItem::Margin(Constants::Margins::medium);
 
-
-    FlexBox leftBtnBox;
-    leftBtnBox.flexWrap = FlexBox::Wrap::noWrap;
-    leftBtnBox.flexDirection = FlexBox::Direction::column;
-    leftBtnBox.justifyContent = FlexBox::JustifyContent::spaceAround;
-    leftBtnBox.items.add(FlexItem(attackLSlider).withFlex(1).withMargin(knobMarginSmall));
-    leftBtnBox.items.add(FlexItem(releaseLSlider).withFlex(1).withMargin(knobMarginSmall));
-    leftBtnBox.items.add(FlexItem(inGainLSlider).withFlex(1).withMargin(knobMarginSmall));
+    juce::FlexBox leftBtnBox;
+    leftBtnBox.flexWrap = juce::FlexBox::Wrap::noWrap;
+    leftBtnBox.flexDirection = juce::FlexBox::Direction::column;
+    leftBtnBox.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
+    leftBtnBox.items.add(juce::FlexItem(attackLSlider).withFlex(1).withMargin(knobMarginSmall));
+    leftBtnBox.items.add(juce::FlexItem(releaseLSlider).withFlex(1).withMargin(knobMarginSmall));
+    leftBtnBox.items.add(juce::FlexItem(inGainLSlider).withFlex(1).withMargin(knobMarginSmall));
     leftBtnBox.performLayout(lBtnArea.toFloat());
 
-    FlexBox rightBtnBox;
-    rightBtnBox.flexWrap = FlexBox::Wrap::noWrap;
-    rightBtnBox.flexDirection = FlexBox::Direction::column;
-    rightBtnBox.justifyContent = FlexBox::JustifyContent::spaceAround;
-    rightBtnBox.items.add(FlexItem(kneeLSlider).withFlex(1).withMargin(knobMarginSmall));
-    rightBtnBox.items.add(FlexItem(ratioLSlider).withFlex(1).withMargin(knobMarginSmall));
-    rightBtnBox.items.add(FlexItem(mixLSlider).withFlex(1).withMargin(knobMarginSmall));
+    juce::FlexBox rightBtnBox;
+    rightBtnBox.flexWrap = juce::FlexBox::Wrap::noWrap;
+    rightBtnBox.flexDirection = juce::FlexBox::Direction::column;
+    rightBtnBox.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
+    rightBtnBox.items.add(juce::FlexItem(kneeLSlider).withFlex(1).withMargin(knobMarginSmall));
+    rightBtnBox.items.add(juce::FlexItem(ratioLSlider).withFlex(1).withMargin(knobMarginSmall));
+    rightBtnBox.items.add(juce::FlexItem(mixLSlider).withFlex(1).withMargin(knobMarginSmall));
     rightBtnBox.performLayout(rBtnArea.toFloat());
 
-    FlexBox botBtnBox;
-    botBtnBox.flexWrap = FlexBox::Wrap::noWrap;
-    botBtnBox.flexDirection = FlexBox::Direction::row;
-    botBtnBox.justifyContent = FlexBox::JustifyContent::spaceAround;
-    botBtnBox.items.add(FlexItem(threshLSlider).withFlex(1));
-    botBtnBox.items.add(FlexItem(makeupGainLSlider).withFlex(1));
+    juce::FlexBox botBtnBox;
+    botBtnBox.flexWrap = juce::FlexBox::Wrap::noWrap;
+    botBtnBox.flexDirection = juce::FlexBox::Direction::row;
+    botBtnBox.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
+    botBtnBox.items.add(juce::FlexItem(threshLSlider).withFlex(1));
+    botBtnBox.items.add(juce::FlexItem(makeupGainLSlider).withFlex(1));
     botBtnBox.performLayout(botBtnArea.toFloat());
 
-    FlexBox meterBox;
-    meterBox.flexWrap = FlexBox::Wrap::noWrap;
-    meterBox.justifyContent = FlexBox::JustifyContent::spaceAround;
-    meterBox.items.add(FlexItem(meter).withFlex(1).withMargin(Constants::Margins::big));
+    juce::FlexBox meterBox;
+    meterBox.flexWrap = juce::FlexBox::Wrap::noWrap;
+    meterBox.justifyContent = juce::FlexBox::JustifyContent::spaceAround;
+    meterBox.items.add(juce::FlexItem(meter).withFlex(1).withMargin(Constants::Margins::big));
     meterBox.performLayout(area.toFloat());
 }
-
 
 void SmplcompAudioProcessorEditor::timerCallback()
 {
@@ -91,16 +90,13 @@ void SmplcompAudioProcessorEditor::timerCallback()
     switch (m)
     {
     case Meter::Mode::IN:
-        //DBG("IN: " << processor.currentInput.get());
-        meter.update(processor.currentInput.get());
+        meter.update(processor.currentInput);
         break;
     case Meter::Mode::OUT:
-        //DBG("OUT: " << processor.currentOutput.get());
-        meter.update(processor.currentOutput.get());
+        meter.update(processor.currentOutput);
         break;
     case Meter::Mode::GR:
-        //DBG("GR: " << processor.gainReduction.get());
-        meter.update(processor.gainReduction.get());
+        meter.update(processor.gainReduction);
         break;
     default:
         break;

@@ -16,47 +16,47 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "../BinaryData.h"
 #include "ModSlider.h"
+#include <juce_audio_processors/juce_audio_processors.h>
+#include <juce_gui_extra/juce_gui_extra.h>
 
-using SliderAttachment = std::unique_ptr<AudioProcessorValueTreeState::SliderAttachment>;
-using ButtonAttachment = std::unique_ptr<AudioProcessorValueTreeState::ButtonAttachment>;
+using SliderAttachment = std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment>;
+using ButtonAttachment = std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment>;
 
-class LabeledSlider : public Component
+class LabeledSlider : public juce::Component
 {
-public:
-
+  public:
     LabeledSlider() : slider(&sliderLabel)
     {
         addAndMakeVisible(slider);
-        slider.setSliderStyle(Slider::SliderStyle::RotaryHorizontalVerticalDrag);
-        slider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+        slider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
+        slider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
 
         addAndMakeVisible(sliderLabel);
-        sliderLabel.setJustificationType(Justification::centred);
+        sliderLabel.setJustificationType(juce::Justification::centred);
     }
 
-    LabeledSlider(Component* parent) : slider(&sliderLabel)
+    LabeledSlider(Component *parent) : slider(&sliderLabel)
     {
         addAndMakeVisible(slider);
-        slider.setSliderStyle(Slider::SliderStyle::RotaryHorizontalVerticalDrag);
+        slider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
         slider.setPopupDisplayEnabled(true, true, parent, 0);
-        slider.setTextBoxStyle(Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
+        slider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::NoTextBox, true, 0, 0);
 
         addAndMakeVisible(sliderLabel);
-        sliderLabel.setJustificationType(Justification::centred);
+        sliderLabel.setJustificationType(juce::Justification::centred);
     }
 
-    void reset(AudioProcessorValueTreeState& state, const String& paramID)
+    void reset(juce::AudioProcessorValueTreeState &state, const juce::String &paramID)
     {
-        sAttachment.reset(new AudioProcessorValueTreeState::SliderAttachment(state, paramID, slider));
+        sAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(state, paramID, slider));
     }
 
-    void setLabelText(const String& text)
+    void setLabelText(const juce::String &text)
     {
-        sliderLabel.setText(text, dontSendNotification);
+        sliderLabel.setText(text, juce::dontSendNotification);
     }
-
 
     void resized() override
     {
@@ -68,12 +68,18 @@ public:
         sliderLabel.setBounds(labelBounds);
     }
 
-    void setHasModifier(bool mod) { slider.setHasModifiers(mod); }
-    bool hasModifier() const { return slider.hasModifier(); }
+    void setHasModifier(bool mod)
+    {
+        slider.setHasModifiers(mod);
+    }
+    bool hasModifier() const
+    {
+        return slider.hasModifier();
+    }
 
-private:
+  private:
     ModSlider slider;
-    Label sliderLabel;
+    juce::Label sliderLabel;
     SliderAttachment sAttachment;
     ButtonAttachment bAttachment;
 };

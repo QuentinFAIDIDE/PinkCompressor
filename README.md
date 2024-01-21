@@ -18,3 +18,8 @@ This is a simplified version of the [CTAGDRC](https://github.com/p-hlp/CTAGDRC) 
 ## Added by QuentinFaidide
 - Cmake build capabilities
 - Pinking and unpinking filters around the compressor processor.
+
+## Notes
+- Filtering coefficients for pinking filter are from [here](https://ccrma.stanford.edu/%7Ejos/sasp/Example_Synthesis_1_F_Noise.html).
+- The root `CMakelists.txt` was inspired by [this project's cmake]() by Anthony Alfimov. 
+- The library used to make plugins is JUCE, and this software leverages the GPL compatibility of the license.

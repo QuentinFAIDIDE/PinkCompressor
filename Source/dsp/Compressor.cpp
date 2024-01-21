@@ -15,18 +15,19 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "include/Compressor.h"
+#include "Compressor.h"
+#include <limits>
 
 Compressor::~Compressor()
 {
     rawSidechainSignal = nullptr;
 }
 
-void Compressor::prepare(const juce::dsp::ProcessSpec& ps)
+void Compressor::prepare(const juce::dsp::ProcessSpec &ps)
 {
     procSpec = ps;
     ballistics.prepare(ps.sampleRate);
-    originalSignal.setSize(2, ps.maximumBlockSize);
+    originalSignal.setSize(2, (int)ps.maximumBlockSize);
     sidechainSignal.resize(ps.maximumBlockSize, 0.0f);
     rawSidechainSignal = sidechainSignal.data();
     originalSignal.clear();
@@ -87,13 +88,12 @@ double Compressor::getSampleRate()
     return procSpec.sampleRate;
 }
 
-
 float Compressor::getMaxGainReduction()
 {
     return maxGainReduction;
 }
 
-void Compressor::process(AudioBuffer<float>& buffer)
+void Compressor::process(juce::AudioBuffer<float> &buffer)
 {
     if (!bypassed)
     {
@@ -104,15 +104,15 @@ void Compressor::process(AudioBuffer<float>& buffer)
 
         // Clear any old samples
         originalSignal.clear();
-        FloatVectorOperations::fill(rawSidechainSignal, 0.0f, numSamples);
+        juce::FloatVectorOperations::fill(rawSidechainSignal, 0.0f, numSamples);
         maxGainReduction = 0.0f;
 
         // Apply input gain
         applyInputGain(buffer, numSamples);
 
         // Get max l/r amplitude values and fill sidechain signal
-        FloatVectorOperations::abs(rawSidechainSignal, buffer.getReadPointer(0), numSamples);
-        FloatVectorOperations::max(rawSidechainSignal, rawSidechainSignal, buffer.getReadPointer(1), numSamples);
+        juce::FloatVectorOperations::abs(rawSidechainSignal, buffer.getReadPointer(0), numSamples);
+        juce::FloatVectorOperations::max(rawSidechainSignal, rawSidechainSignal, buffer.getReadPointer(1), numSamples);
 
         // Compute attenuation - converts side-chain signal from linear to logarithmic domain
         gainComputer.applyCompressionToBuffer(rawSidechainSignal, numSamples);
@@ -121,11 +121,11 @@ void Compressor::process(AudioBuffer<float>& buffer)
         ballistics.applyBallistics(rawSidechainSignal, numSamples);
 
         // Get minimum = max. gain reduction from side chain buffer
-        maxGainReduction = FloatVectorOperations::findMinimum(rawSidechainSignal, numSamples);
+        maxGainReduction = juce::FloatVectorOperations::findMinimum(rawSidechainSignal, numSamples);
 
         // Add makeup gain and convert side-chain to linear domain
         for (int i = 0; i < numSamples; ++i)
-            sidechainSignal[i] = Decibels::decibelsToGain(sidechainSignal[i] + makeup);
+            sidechainSignal[(size_t)i] = juce::Decibels::decibelsToGain(sidechainSignal[(size_t)i] + makeup);
 
         // Copy buffer to original signal
         for (int i = 0; i < numChannels; ++i)
@@ -133,25 +133,29 @@ void Compressor::process(AudioBuffer<float>& buffer)
 
         // Multiply attenuation with buffer - apply compression
         for (int i = 0; i < numChannels; ++i)
-            FloatVectorOperations::multiply(buffer.getWritePointer(i), rawSidechainSignal, numSamples);
+            juce::FloatVectorOperations::multiply(buffer.getWritePointer(i), rawSidechainSignal, numSamples);
 
         // Mix dry & wet signal
         for (int i = 0; i < numChannels; ++i)
         {
-            float* channelData = buffer.getWritePointer(i); //wet signal
-            FloatVectorOperations::multiply(channelData, mix, numSamples);
-            FloatVectorOperations::addWithMultiply(channelData, originalSignal.getReadPointer(i), 1 - mix, numSamples);
+            float *channelData = buffer.getWritePointer(i); // wet signal
+            juce::FloatVectorOperations::multiply(channelData, mix, numSamples);
+            juce::FloatVectorOperations::addWithMultiply(channelData, originalSignal.getReadPointer(i), 1 - mix,
+                                                         numSamples);
         }
     }
 }
 
-inline void Compressor::applyInputGain(AudioBuffer<float>& buffer, int numSamples)
+inline void Compressor::applyInputGain(juce::AudioBuffer<float> &buffer, int numSamples)
 {
-    if (prevInput == input)
-        buffer.applyGain(0, numSamples, Decibels::decibelsToGain(prevInput));
+    if (std::abs(prevInput - input) > std::numeric_limits<float>::epsilon())
+    {
+        buffer.applyGain(0, numSamples, juce::Decibels::decibelsToGain(prevInput));
+    }
     else
     {
-        buffer.applyGainRamp(0, numSamples, Decibels::decibelsToGain(prevInput), Decibels::decibelsToGain(input));
+        buffer.applyGainRamp(0, numSamples, juce::Decibels::decibelsToGain(prevInput),
+                             juce::Decibels::decibelsToGain(input));
         prevInput = input;
     }
 }

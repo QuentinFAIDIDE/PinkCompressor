@@ -15,17 +15,17 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "include/SmoothingFilter.h"
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "SmoothingFilter.h"
+#include <juce_core/juce_core.h>
 
-void SmoothingFilter::prepare(const double& fs)
+void SmoothingFilter::prepare(const double &fs)
 {
     sampleRate = fs;
     a1 = 1;
     b1 = 1 - a1;
 }
 
-void SmoothingFilter::process(const double& sample)
+void SmoothingFilter::process(const double &sample)
 {
     if (first)
     {

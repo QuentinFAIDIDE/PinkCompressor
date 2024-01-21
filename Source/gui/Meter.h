@@ -16,34 +16,35 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
+#include "MeterBackground.h"
+#include "MeterNeedle.h"
+#include <juce_gui_extra/juce_gui_extra.h>
 
-/* GainComputer Class:
- * Calculates the needed attenuation to compress a signal with given characteristics
- */
-class GainComputer
+class Meter : public juce::Component
 {
-public:
+  public:
+    enum Mode
+    {
+        IN = 1,
+        OUT,
+        GR
+    };
 
-    GainComputer();
+    Meter();
+    void paint(juce::Graphics &g) override;
+    void resized() override;
+    void setMode(int m);
+    void modeBoxChanged();
+    void update(const float &val);
+    int getMode();
+    float getValue();
 
-    // Sets the threshold in dB
-    void setThreshold(float);
-
-    // Sets the ratio in dB
-    void setRatio(float);
-
-    // Sets the knee-width in dB (if > 0, 2nd order interpolation for soft knee)
-    void setKnee(float);
-
-    // Applies characteristics to a given sample
-    // returns attenuation
-    float applyCompression(float&);
-
-    void applyCompressionToBuffer(float*, int);
-
-private:
-    float threshold{-20.0f};
-    float ratio{2.0f};
-    float knee{6.0f}, kneeHalf{3.0f};
-    float slope{-0.5f};
+  private:
+    MeterBackground meterBg;
+    MeterNeedle needle;
+    juce::ComboBox modeBox;
+    juce::Colour backgroundDarkGrey;
+    int meterMode;
+    float valueInDecibel;
+    float startAngle, endAngle;
 };

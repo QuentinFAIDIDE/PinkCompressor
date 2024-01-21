@@ -15,12 +15,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "include/LevelEnvelopeFollower.h"
+#include "LevelEnvelopeFollower.h"
 
 #include <cassert>
 #include <cmath>
 
-void LevelEnvelopeFollower::prepare(const double& fs)
+void LevelEnvelopeFollower::prepare(const double &fs)
 {
     sampleRate = fs;
 
@@ -43,7 +43,7 @@ void LevelEnvelopeFollower::setRmsDecay(float dc)
     prepare(sampleRate);
 }
 
-void LevelEnvelopeFollower::updatePeak(const float* const* channelData, int numChannels, int numSamples)
+void LevelEnvelopeFollower::updatePeak(const float *const *channelData, int numChannels, int numSamples)
 {
     assert(numChannels >= 0 && numSamples >= 0 && channelData != nullptr);
     if (numChannels > 0 && numSamples > 0)
@@ -60,13 +60,13 @@ void LevelEnvelopeFollower::updatePeak(const float* const* channelData, int numC
                 currMaxPeak = sum;
             else if (currMaxPeak > 0.001f)
                 currMaxPeak *= peakDecay;
-            else currMaxPeak = 0.0f;
-            //DBG("Current Maxpeak: " << currMaxPeak);
+            else
+                currMaxPeak = 0.0f;
         }
     }
 }
 
-void LevelEnvelopeFollower::updateRMS(const float* const* channelData, int numChannels, int numSamples)
+void LevelEnvelopeFollower::updateRMS(const float *const *channelData, int numChannels, int numSamples)
 {
     assert(numChannels >= 0 && numSamples >= 0 && channelData != nullptr);
     if (numChannels > 0 && numSamples > 0)
@@ -84,7 +84,8 @@ void LevelEnvelopeFollower::updateRMS(const float* const* channelData, int numCh
                 currMaxRMS = sum * rmsDecay;
             else if (currMaxRMS > 0.001f)
                 currMaxRMS *= peakDecay;
-            else currMaxRMS = 0.0f;
+            else
+                currMaxRMS = 0.0f;
         }
     }
 }

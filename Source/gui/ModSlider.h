@@ -16,22 +16,23 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <juce_gui_extra/juce_gui_extra.h>
 
-class ModSlider : public Slider
+class ModSlider : public juce::Slider
 {
-public:
-
-
-    ModSlider(Label* l) : label(l), isModifiable(false)
+  public:
+    ModSlider(juce::Label *l) : label(l), isModifiable(false)
     {
     }
 
-    ~ModSlider() { label = nullptr; }
-
-    void mouseDown(const MouseEvent& e) override
+    ~ModSlider()
     {
-        const ModifierKeys modifiers = ModifierKeys::getCurrentModifiersRealtime();
+        label = nullptr;
+    }
+
+    void mouseDown(const juce::MouseEvent &e) override
+    {
+        const juce::ModifierKeys modifiers = juce::ModifierKeys::getCurrentModifiersRealtime();
         if (isModifiable && modifiers.isPopupMenu())
         {
             if (isEnabled() && label->isEnabled())
@@ -59,8 +60,7 @@ public:
         return isModifiable;
     }
 
-
-private:
-    Label* label;
+  private:
+    juce::Label *label;
     bool isModifiable;
 };

@@ -15,10 +15,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "include/LevelDetector.h"
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "LevelDetector.h"
+#include <juce_core/juce_core.h>
+#include <limits>
 
-void LevelDetector::prepare(const double& fs)
+void LevelDetector::prepare(const double &fs)
 {
     sampleRate = fs;
     alphaAttack = exp(-1.0 / (sampleRate * attackTimeInSeconds));
@@ -27,24 +28,23 @@ void LevelDetector::prepare(const double& fs)
     state02 = 0.0;
 }
 
-void LevelDetector::setAttack(const double& attack)
+void LevelDetector::setAttack(const double &attack)
 {
-    if (attack != attackTimeInSeconds)
+    if (std::abs(attack - attackTimeInSeconds) > std::numeric_limits<float>::epsilon())
     {
-        attackTimeInSeconds = attack; //Time it takes to reach 1-1/e = 0.63
-        alphaAttack = exp(-1.0 / (sampleRate * attackTimeInSeconds)); //aA = e^(-1/TA*fs)
+        attackTimeInSeconds = attack;                                 // Time it takes to reach 1-1/e = 0.63
+        alphaAttack = exp(-1.0 / (sampleRate * attackTimeInSeconds)); // aA = e^(-1/TA*fs)
     }
 }
 
-void LevelDetector::setRelease(const double& release)
+void LevelDetector::setRelease(const double &release)
 {
-    if (release != releaseTimeInSeconds)
+    if (std::abs(release - releaseTimeInSeconds) > std::numeric_limits<float>::epsilon())
     {
-        releaseTimeInSeconds = release; //Time it takes to reach 1 - (1-1/e) = 0.37
-        alphaRelease = exp(-1.0 / (sampleRate * releaseTimeInSeconds)); //aR = e^(-1/TR*fs)
+        releaseTimeInSeconds = release;                                 // Time it takes to reach 1 - (1-1/e) = 0.37
+        alphaRelease = exp(-1.0 / (sampleRate * releaseTimeInSeconds)); // aR = e^(-1/TR*fs)
     }
 }
-
 
 double LevelDetector::getAttack()
 {
@@ -66,28 +66,27 @@ double LevelDetector::getAlphaRelease()
     return alphaRelease;
 }
 
-float LevelDetector::processPeakBranched(const float& in)
+float LevelDetector::processPeakBranched(const float &in)
 {
-    //Smooth branched peak detector
+    // Smooth branched peak detector
     if (in < state01)
         state01 = alphaAttack * state01 + (1 - alphaAttack) * in;
     else
         state01 = alphaRelease * state01 + (1 - alphaRelease) * in;
 
-    return static_cast<float>(state01); //y_L
+    return static_cast<float>(state01); // y_L
 }
 
-
-float LevelDetector::processPeakDecoupled(const float& in)
+float LevelDetector::processPeakDecoupled(const float &in)
 {
-    //Smooth decoupled peak detector
+    // Smooth decoupled peak detector
     const double input = static_cast<double>(in);
-    state02 = jmax(input, alphaRelease * state02 + (1 - alphaRelease) * input);
+    state02 = juce::jmax(input, alphaRelease * state02 + (1 - alphaRelease) * input);
     state01 = alphaAttack * state01 + (1 - alphaAttack) * state02;
     return static_cast<float>(state01);
 }
 
-void LevelDetector::applyBallistics(float* src, int numSamples)
+void LevelDetector::applyBallistics(float *src, int numSamples)
 {
     // Apply ballistics to src buffer
     for (int i = 0; i < numSamples; ++i)

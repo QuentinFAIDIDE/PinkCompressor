@@ -16,21 +16,21 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#include "../JuceLibraryCode/JuceHeader.h"
+#include <juce_gui_extra/juce_gui_extra.h>
 
-class MeterBackground : public Component
+class MeterBackground : public juce::Component
 {
-public:
-
+  public:
     MeterBackground();
-    void prepare(const float& s, const float& e);
-    void paint(Graphics& g) override;
+    void prepare(const float &s, const float &e);
+    void paint(juce::Graphics &g) override;
     void resized() override;
-    void drawIndicators(Graphics& g, float centreX, float centreY, float length);
+    void drawIndicators(juce::Graphics &g, float centreX, float centreY, float length);
     void setMode(int m);
-private:
-    Rectangle<int> meterArea;
-    Colour backgroundLightGrey, backgroundApp;
+
+  private:
+    juce::Rectangle<int> meterArea;
+    juce::Colour backgroundLightGrey, backgroundApp;
     int mode;
     int minValue, maxValue;
     float sAngle, eAngle;

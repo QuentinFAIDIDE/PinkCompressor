@@ -16,34 +16,24 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
+#include <juce_gui_extra/juce_gui_extra.h>
 
-/*Simple exponential moving average filter, also known as 1-pole iir filter
- * This class can be used to smooth values over a certain time frame
- */
-class SmoothingFilter
+class MeterNeedle : public juce::Component
 {
-public:
+  public:
+    MeterNeedle();
+    void prepare(const float &s, const float &e);
+    void paint(juce::Graphics &g) override;
+    void resized() override;
+    void update(const float &val);
+    void redrawNeedle(juce::Graphics &g, float centreX, float centreY, float length);
+    void setMode(int m);
 
-    SmoothingFilter() = default;
-
-    // Prepares the SmoothingFilter with a sampleRate
-    void prepare(const double& fs);
-
-    // Processes a given sample
-    void process(const double& sample);
-
-    // Sets coefficient manually
-    void setAlpha(double a);
-
-    // Set time-frame in seconds, recalculates needed coefficients
-    void setAlphaWithTime(float timeInSeconds);
-
-    // Gets current value
-    double getState();
-
-private:
-    double a1{1.0}, b1{0.0};
-    double state{0.0};
-    double sampleRate{0.0};
-    bool first{true};
+  private:
+    juce::Rectangle<int> area;
+    juce::Colour statusOutline;
+    float valueInDecibel;
+    int mode;
+    int minValue, maxValue;
+    float sAngle, eAngle;
 };

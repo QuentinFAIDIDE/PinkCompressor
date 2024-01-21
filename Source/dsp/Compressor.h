@@ -16,25 +16,26 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
-#include "LevelDetector.h"
+
 #include "GainComputer.h"
-#include "../JuceLibraryCode/JuceHeader.h"
+#include "LevelDetector.h"
+#include <juce_dsp/juce_dsp.h>
 
 /* Compressor-Class:
  * The circruit is modeled after the "ideal" VCA-Compressor
- * based on the paper "Digital Dynamic Range Compressor Design �  Tutorial and Analysis"
- * by Giannoulis, Massberg & Reiss
+ * based on the paper "Digital Dynamic Range Compressor Design �  Tutorial and
+ * Analysis" by Giannoulis, Massberg & Reiss
  */
 
 class Compressor
 {
-public:
-
+  public:
     Compressor() = default;
     ~Compressor();
 
-    // Prepares compressor with a ProcessSpec-Object containing samplerate, blocksize and number of channels
-    void prepare(const dsp::ProcessSpec& ps);
+    // Prepares compressor with a ProcessSpec-Object containing samplerate,
+    // blocksize and number of channels
+    void prepare(const juce::dsp::ProcessSpec &ps);
 
     // Sets compressor to bypassed/not bypassed
     void setPower(bool);
@@ -72,17 +73,17 @@ public:
     float getMaxGainReduction();
 
     // Processes input buffer
-    void process(AudioBuffer<float>& buffer);
+    void process(juce::AudioBuffer<float> &buffer);
 
-private:
-    inline void applyInputGain(AudioBuffer<float>&, int);
+  private:
+    inline void applyInputGain(juce::AudioBuffer<float> &, int);
 
-    //Directly initialize process spec to avoid debugging problems
+    // Directly initialize process spec to avoid debugging problems
     juce::dsp::ProcessSpec procSpec{-1, 0, 0};
 
-    AudioBuffer<float> originalSignal;
+    juce::AudioBuffer<float> originalSignal;
     std::vector<float> sidechainSignal;
-    float* rawSidechainSignal{nullptr};
+    float *rawSidechainSignal{nullptr};
 
     LevelDetector ballistics;
     GainComputer gainComputer;

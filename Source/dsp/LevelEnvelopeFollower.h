@@ -17,15 +17,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
 
-/* Basic envelope-follwer, to track peak & rms signal level with configurable decay time*/
+/* Basic envelope-follwer, to track peak & rms signal level with configurable
+ * decay time*/
 class LevelEnvelopeFollower
 {
-public:
+  public:
     LevelEnvelopeFollower() = default;
 
-    // Prepares envelope follower with given sample rate and recalculates decayInSamples
-    // aswell as the peak/rms coefficient
-    void prepare(const double& fs);
+    // Prepares envelope follower with given sample rate and recalculates
+    // decayInSamples aswell as the peak/rms coefficient
+    void prepare(const double &fs);
 
     // Set peak decay
     void setPeakDecay(float dc);
@@ -34,10 +35,10 @@ public:
     void setRmsDecay(float dc);
 
     // Updates peak envelope follower from given audio buffer
-    void updatePeak(const float* const* channelData, int numChannels, int numSamples);
+    void updatePeak(const float *const *channelData, int numChannels, int numSamples);
 
     // Updates rms envelope follower from given audio buffer
-    void updateRMS(const float* const* channelData, int numChannels, int numSamples);
+    void updateRMS(const float *const *channelData, int numChannels, int numSamples);
 
     // Gets current peak, call after updatePeak
     float getPeak();
@@ -45,7 +46,7 @@ public:
     // Gets current rms, vall after updateRMS
     float getRMS();
 
-private:
+  private:
     float currMaxPeak{0.0f};
     float currMaxRMS{0.0f};
     float peakDecay{0.99992f};
