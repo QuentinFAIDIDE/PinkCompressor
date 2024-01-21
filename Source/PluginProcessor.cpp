@@ -11,20 +11,27 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
-//==============================================================================
+// clang-format off
+#define WHITE_TO_PINK_ZEROS {0.049922035, -0.095993537, 0.050612699, -0.004408786}
+#define WHITE_TO_PINK_POLES {1, -2.494956002, 2.017265875, -0.522189400}
+#define DEFAULT_FILTERS_GAIN_DB 34
+// clang-format on
+
 SmplcompAudioProcessor::SmplcompAudioProcessor()
-#ifndef JucePlugin_PreferredChannelConfigurations
     : AudioProcessor(BusesProperties()
-#if !JucePlugin_IsMidiEffect
-#if !JucePlugin_IsSynth
                          .withInput("Input", juce::AudioChannelSet::stereo(), true)
-#endif
-                         .withOutput("Output", juce::AudioChannelSet::stereo(), true)
-#endif
-                         ),
-      parameters(*this, nullptr, "PARAMETERS", createParameterLayout())
-#endif
+                         .withOutput("Output", juce::AudioChannelSet::stereo(), true)),
+      parameters(*this, nullptr, "PARAMETERS", createParameterLayout()),
+      pinkToWhiteFilterLeft(WHITE_TO_PINK_ZEROS, WHITE_TO_PINK_POLES),
+      whiteToPinkFilterLeft(WHITE_TO_PINK_POLES, WHITE_TO_PINK_ZEROS),
+      pinkToWhiteFilterRight(WHITE_TO_PINK_ZEROS, WHITE_TO_PINK_POLES),
+      whiteToPinkFilterRight(WHITE_TO_PINK_POLES, WHITE_TO_PINK_ZEROS)
 {
+    whiteToPinkFilterLeft.setOutputGainDB(DEFAULT_FILTERS_GAIN_DB);
+    pinkToWhiteFilterLeft.setOutputGainDB(-DEFAULT_FILTERS_GAIN_DB);
+    whiteToPinkFilterRight.setOutputGainDB(DEFAULT_FILTERS_GAIN_DB);
+    pinkToWhiteFilterRight.setOutputGainDB(-DEFAULT_FILTERS_GAIN_DB);
+
     // Add parameter listener
     parameters.addParameterListener("inputgain", this);
     parameters.addParameterListener("makeup", this);
@@ -130,19 +137,56 @@ bool SmplcompAudioProcessor::isBusesLayoutSupported(const BusesLayout &layouts) 
 void SmplcompAudioProcessor::processBlock(juce::AudioBuffer<float> &buffer, juce::MidiBuffer &)
 {
     juce::ScopedNoDenormals noDenormals;
+    // NOTE: there should always be as many output channels as input channel given we test for that in the layout func
     auto totalNumInputChannels = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
     const auto numSamples = buffer.getNumSamples();
-
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear(i, 0, buffer.getNumSamples());
 
     // Update input peak metering
     inLevelFollower.updatePeak(buffer.getArrayOfReadPointers(), totalNumInputChannels, numSamples);
     currentInput = juce::Decibels::gainToDecibels(inLevelFollower.getPeak());
 
+    // apply the unpinking filter
+    for (auto channel = 0; channel < totalNumInputChannels; ++channel)
+    {
+        float *channelData = buffer.getWritePointer(channel);
+        if (channel == 0)
+        {
+            for (int i = 0; i < buffer.getNumSamples(); i++)
+            {
+                channelData[i] = pinkToWhiteFilterLeft.filter(channelData[i]);
+            }
+        }
+        if (channel == 1)
+        {
+            for (int i = 0; i < buffer.getNumSamples(); i++)
+            {
+                channelData[i] = pinkToWhiteFilterRight.filter(channelData[i]);
+            }
+        }
+    }
+
     // Do compressor processing
     compressor.process(buffer);
+
+    // apply the pinking filter
+    for (auto channel = 0; channel < totalNumInputChannels; ++channel)
+    {
+        float *channelData = buffer.getWritePointer(channel);
+        if (channel == 0)
+        {
+            for (int i = 0; i < buffer.getNumSamples(); i++)
+            {
+                channelData[i] = whiteToPinkFilterLeft.filter(channelData[i]);
+            }
+        }
+        if (channel == 1)
+        {
+            for (int i = 0; i < buffer.getNumSamples(); i++)
+            {
+                channelData[i] = whiteToPinkFilterRight.filter(channelData[i]);
+            }
+        }
+    }
 
     // Update gain reduction metering
     gainReduction = compressor.getMaxGainReduction();

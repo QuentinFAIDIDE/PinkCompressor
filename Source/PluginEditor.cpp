@@ -48,7 +48,6 @@ void SmplcompAudioProcessorEditor::resized()
     auto rBtnArea = area.removeFromRight(btnAreaWidth).reduced(Constants::Margins::small);
     auto botBtnArea = area.removeFromBottom(btnBotHeight).reduced(Constants::Margins::medium);
 
-    const juce::FlexItem::Margin knobMargin = juce::FlexItem::Margin(Constants::Margins::small);
     const juce::FlexItem::Margin knobMarginSmall = juce::FlexItem::Margin(Constants::Margins::medium);
 
     juce::FlexBox leftBtnBox;

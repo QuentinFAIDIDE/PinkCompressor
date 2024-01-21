@@ -11,6 +11,7 @@
 #pragma once
 
 #include "dsp/Compressor.h"
+#include "dsp/Filter.h"
 #include "dsp/LevelEnvelopeFollower.h"
 #include <juce_audio_processors/juce_audio_processors.h>
 
@@ -58,6 +59,10 @@ class SmplcompAudioProcessor : public juce::AudioProcessor, public juce::AudioPr
   private:
     juce::AudioProcessorValueTreeState parameters;
     Compressor compressor;
+    Filter pinkToWhiteFilterLeft;
+    Filter whiteToPinkFilterLeft;
+    Filter pinkToWhiteFilterRight;
+    Filter whiteToPinkFilterRight;
     LevelEnvelopeFollower inLevelFollower;
     LevelEnvelopeFollower outLevelFollower;
 
