@@ -24,7 +24,7 @@ namespace Constants
 namespace Colors
 {
 // Backgrounds
-constexpr uint32_t bg_App{0xff424242};
+constexpr uint32_t bg_App{0xff202020};
 constexpr uint32_t bg_DarkGrey{0xff212121};
 constexpr uint32_t bg_MidGrey{0xff616161};
 constexpr uint32_t bg_LightGrey{0xff9e9e9e};
