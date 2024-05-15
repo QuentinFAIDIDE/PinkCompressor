@@ -208,17 +208,28 @@ juce::AudioProcessorEditor *SmplcompAudioProcessor::createEditor()
 }
 
 //==============================================================================
-void SmplcompAudioProcessor::getStateInformation(juce::MemoryBlock &)
+void SmplcompAudioProcessor::getStateInformation(juce::MemoryBlock &destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    // directly taken from the Juce parmeters tutorial
+    // https://docs.juce.com/master/tutorial_audio_processor_value_tree_state.html
+    auto state = parameters.copyState();
+    std::unique_ptr<juce::XmlElement> xml(state.createXml());
+    copyXmlToBinary(*xml, destData);
 }
 
-void SmplcompAudioProcessor::setStateInformation(const void *, int)
+void SmplcompAudioProcessor::setStateInformation(const void *data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    // directly taken from the Juce parmeters tutorial
+    // https://docs.juce.com/master/tutorial_audio_processor_value_tree_state.html
+    std::unique_ptr<juce::XmlElement> xmlState(getXmlFromBinary(data, sizeInBytes));
+
+    if (xmlState.get() != nullptr)
+    {
+        if (xmlState->hasTagName(parameters.state.getType()))
+        {
+            parameters.replaceState(juce::ValueTree::fromXml(*xmlState));
+        }
+    }
 }
 
 //==============================================================================
